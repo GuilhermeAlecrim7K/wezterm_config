@@ -5,13 +5,21 @@ local module = {}
 function module.apply_to_config(config)
 	config.color_scheme = "Dracula"
 
-	-- TODO: load fonts from "fonts" directory in wezterm.lua root
-	-- config.font_dirs = { "fonts" }
-	-- config.font_locator = "ConfigDirsOnly"
+	config.font_dirs = { "fonts" }
+	config.font_locator = "ConfigDirsOnly"
+	-- [
+	-- Reference
+	-- abcdefghijklmnopqrstuvwxyz
+	-- ABCDEFGHIJKLMNOPQRSTUVWXYZ
+	-- oO08 iIlL1 {} [] g9qCGQ ~-+=>
+	-- ]
 	config.font = wezterm.font_with_fallback({
+		"Iosevka Nerd Font",
 		"UbuntuMono Nerd Font",
+		"Hack",
+		"Hasklig",
+		"Lilex Nerd Font",
 		"Fira Code",
-		"Cascadia Code",
 	})
 	config.font_size = 12
 
