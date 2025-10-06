@@ -3,7 +3,7 @@ local wezterm = require("wezterm")
 local module = {}
 
 function module.apply_to_config(config)
-	config.color_scheme = "Dracula"
+	config.color_scheme = "Catppuccin Mocha"
 
 	config.font_dirs = { "fonts" }
 	config.font_locator = "ConfigDirsOnly"
