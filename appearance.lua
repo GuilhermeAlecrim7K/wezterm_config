@@ -3,7 +3,15 @@ local wezterm = require("wezterm")
 local module = {}
 
 function module.apply_to_config(config)
-	config.color_scheme = "Catppuccin Mocha"
+	config.color_scheme = "Tokyo Night Moon"
+
+	config.enable_scroll_bar = true
+	config.background = {
+		{
+			source = { File = wezterm.home_dir .. "/.config/wezterm/images/starry-night-sky.jpg" },
+			hsb = { brightness = 0.02 },
+		},
+	}
 
 	config.font_dirs = { "fonts" }
 	config.font_locator = "ConfigDirsOnly"
