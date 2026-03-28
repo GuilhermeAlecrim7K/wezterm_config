@@ -8,8 +8,8 @@ function module.apply_to_config(config)
 	config.enable_scroll_bar = true
 	config.background = {
 		{
-			source = { File = wezterm.home_dir .. "/.config/wezterm/images/starry-night-sky.jpg" },
-			hsb = { brightness = 0.02 },
+			source = { File = wezterm.home_dir .. "/.config/wezterm/images/triple-ryoiki-tenkai.png" },
+			hsb = { brightness = 0.006 },
 		},
 	}
 
