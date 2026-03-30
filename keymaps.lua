@@ -13,6 +13,20 @@ function module.apply_to_config(config)
 			mods = "CTRL|SHIFT",
 			action = wezterm.action_callback(background_switcher.callback),
 		},
+		{
+			key = "}",
+			mods = "CTRL|SHIFT",
+			action = wezterm.action_callback(function(_)
+				background_switcher.adjust_brightness(0.001)
+			end),
+		},
+		{
+			key = "{",
+			mods = "CTRL|SHIFT",
+			action = wezterm.action_callback(function(_)
+				background_switcher.adjust_brightness(-0.001)
+			end),
+		},
 	}
 end
 

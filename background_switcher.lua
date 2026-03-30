@@ -43,11 +43,12 @@ local function apply_background(config, background)
 	end
 
 	local image_path = IMAGES_DIR .. "/" .. background
+	local brightness = module.get_brightness(background)
 	config.background = config.background
 		or {
 			{
 				source = { File = image_path },
-				hsb = { brightness = 0.006 },
+				hsb = { brightness = brightness },
 			},
 		}
 end
@@ -92,6 +93,27 @@ function module.callback(window, pane)
 		}),
 		pane
 	)
+end
+
+function module.get_brightness(image_name)
+	local brightness_map = state_manager.get("background", "brightness") or {}
+	return brightness_map[image_name] or brightness_map["default"] or 0.01
+end
+
+function module.adjust_brightness(delta)
+	local current_image = get_current_background()
+	if current_image == "none" then
+		return
+	end
+
+	local current = module.get_brightness(current_image)
+	local new_brightness = math.max(0.001, math.min(1, current + delta))
+
+	local brightness_map = state_manager.get("background", "brightness") or {}
+	brightness_map[current_image] = new_brightness
+	state_manager.set("background", "brightness", brightness_map)
+
+	wezterm.reload_configuration()
 end
 
 return module
