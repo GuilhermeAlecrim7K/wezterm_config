@@ -13,15 +13,14 @@ function module.apply_to_config(config)
 	-- Reference
 	-- abcdefghijklmnopqrstuvwxyz
 	-- ABCDEFGHIJKLMNOPQRSTUVWXYZ
-	-- oO08 iIlL1 {} [] g9qCGQ ~-+=>
+	-- oO08 iIlL1 {} [] g9qCGQ ~-+=> <> !=
 	-- ]
 	config.font = wezterm.font_with_fallback({
 		"Iosevka Nerd Font",
 		"UbuntuMono Nerd Font",
-		"Hack",
-		"Hasklig",
+		"Hack Nerd Font",
+		"Hasklug Nerd Font",
 		"Lilex Nerd Font",
-		"Fira Code",
 	})
 	config.font_size = 12
 
