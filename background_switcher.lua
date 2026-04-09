@@ -17,7 +17,9 @@ local function get_available_images()
 
 	for _, filepath in ipairs(files) do
 		-- Extract just the filename from the full path
-		local filename = filepath:match("([^/]+)$")
+		local filename = nil
+		local SEP = package.config:sub(1,1)
+		filename = filepath:match("([^" .. SEP .. "]+)$")
 		local lower_file = filename:lower()
 		if lower_file:match("%.png$") or lower_file:match("%.jpg$") or lower_file:match("%.jpeg$") then
 			table.insert(images, filename)
