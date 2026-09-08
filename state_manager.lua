@@ -31,6 +31,32 @@ local function load_state_file()
 	return state or DEFAULT_STATE
 end
 
+-- Numeric keys first, in ascending order, then string keys alphabetically.
+-- A stable order keeps the generated file diffable instead of reshuffling on every write.
+local function sorted_keys(tbl)
+	local numbers = {}
+	local strings = {}
+
+	for key in pairs(tbl) do
+		if type(key) == "number" then
+			table.insert(numbers, key)
+		elseif type(key) == "string" then
+			table.insert(strings, key)
+		else
+			wezterm.log_warn("Skipping unsupported key type: " .. type(key))
+		end
+	end
+
+	table.sort(numbers)
+	table.sort(strings)
+
+	for _, key in ipairs(strings) do
+		table.insert(numbers, key)
+	end
+
+	return numbers
+end
+
 local function save_state_file(state)
 	local file = io.open(STATE_FILE, "w")
 	if not file then
@@ -44,14 +70,16 @@ local function save_state_file(state)
 		local lines = {}
 		table.insert(lines, "{")
 
-		for key, value in pairs(tbl) do
-			local key_str = type(key) == "string" and string.format('%s["%s"] = ', indent .. "\t", key)
+		for _, key in ipairs(sorted_keys(tbl)) do
+			local value = tbl[key]
+			-- %q escapes backslashes and quotes, which Windows paths are full of.
+			local key_str = type(key) == "string" and string.format("%s[%q] = ", indent .. "\t", key)
 				or string.format("%s[%s] = ", indent .. "\t", tostring(key))
 
 			if type(value) == "table" then
 				table.insert(lines, key_str .. serialize(value, indent .. "\t") .. ",")
 			elseif type(value) == "string" then
-				table.insert(lines, string.format('%s"%s",', key_str, value))
+				table.insert(lines, string.format("%s%q,", key_str, value))
 			elseif type(value) == "boolean" or type(value) == "number" then
 				table.insert(lines, string.format("%s%s,", key_str, tostring(value)))
 			else
