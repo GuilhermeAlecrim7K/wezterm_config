@@ -6,6 +6,7 @@ local keymaps = require("keymaps")
 local command_palette = require("command_palette")
 local general_options = require("general_options")
 local tab_titles = require("tab_titles")
+local session_manager = require("session_manager")
 
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
@@ -18,5 +19,6 @@ keymaps.apply_to_config(config)
 command_palette.apply_to_config(config)
 general_options.apply_to_config(config)
 tab_titles.apply_to_config(config)
+session_manager.apply_to_config(config)
 
 return config
