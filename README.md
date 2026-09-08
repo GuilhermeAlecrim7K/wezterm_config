@@ -12,6 +12,18 @@ A modular, extensible [WezTerm](https://wezterm.org/) configuration with dynamic
 - **Disable option**: Choose "None" to disable background entirely
 - Automatically discovers all `.png`, `.jpg`, and `.jpeg` files in `images/` directory
 
+### 💼 Session Restore
+- **Automatic**: the layout you left behind is reopened the next time WezTerm starts
+- **Windows and tabs**: each window is restored with its tabs, working directories, manually assigned tab names and active tab
+- **Periodic snapshots**: the live layout is sampled every 30 seconds, so directories that change from day to day are picked up on their own
+- **History**: the last 5 distinct layouts are kept, so a snapshot taken while you were closing windows never costs you the good one
+- **Command palette**: "Save session now", "Restore session", "Toggle session restore on startup"
+
+WezTerm exposes no window-closed or application-exit event, which is why the layout is
+sampled periodically instead of being written on the way out. Window position and size
+are not restored: the Lua API can set a window position but cannot read one, so there is
+nothing to capture.
+
 ### 🏗️ Modular Architecture
 Configuration is split into logical modules:
 - **wezterm.lua** - Main entry point that orchestrates all modules
@@ -21,18 +33,43 @@ Configuration is split into logical modules:
 - **initialization.lua** - Platform-specific startup (e.g., PowerShell on Windows)
 - **keymaps.lua** - Keyboard shortcuts and leader key configuration
 - **general_options.lua** - General behavior (animations, cursor, tabs)
+- **tab_titles.lua** - Automatic and manually assigned tab titles
+- **session_manager.lua** - Window/tab session capture and restore
 - **state_manager.lua** - Centralized state persistence system
 
 ### 💾 Centralized State Management
-All persistent configuration is stored in `config_state.lua`:
+All persistent configuration is stored in `config_state.lua`, which is gitignored so each
+machine keeps its own setup:
 ```lua
 {
   ["background"] = {
     ["current_image"] = "triple-ryoiki-tenkai.png",
   },
+  ["session"] = {
+    ["enabled"] = true,
+    ["history"] = {
+      [1] = {
+        ["saved_at"] = "2026-08-14 11:30:56",
+        ["windows"] = {
+          [1] = {
+            ["active_tab"] = 2,
+            ["workspace"] = "default",
+            ["tabs"] = {
+              [1] = { ["cwd"] = "C:\\Projetos", ["tab_title"] = "" },
+              [2] = { ["cwd"] = "C:\\Users\\you", ["tab_title"] = "home" },
+            },
+          },
+        },
+      },
+      -- newest first, up to 5 entries
+    },
+  },
   -- Future modules can add their own state here
 }
 ```
+
+Values are serialized with `%q`, so Windows paths and quotes round-trip safely, and keys
+are emitted in a stable order to keep the file diffable.
 
 Easy for new features to add state without conflicts:
 ```lua
@@ -83,6 +120,34 @@ local state_manager = require("state_manager")
 state_manager.set("background", "current_image", "starry-night-sky.jpg")
 ```
 
+### Restoring Sessions
+
+Nothing has to be done for the common case: WezTerm reopens the last saved layout on
+startup. The snapshot timer keeps the saved layout in sync while you work, so a plain
+restart brings back the windows and tabs you had.
+
+**Reopening an older layout**
+1. Press `Ctrl+Shift+P` to open the command palette
+2. Select "Restore session"
+3. Pick an entry from the list (timestamp, window count, tab count)
+
+The chosen layout is opened alongside the windows you already have, it does not replace
+them.
+
+**Forcing a snapshot** - select "Save session now" from the command palette when you want
+the current layout recorded immediately instead of waiting for the next 30 second tick.
+
+**Turning startup restore off** - select "Toggle session restore on startup". With it off,
+WezTerm opens a single window as usual and snapshots keep being taken, so you can turn it
+back on later without having lost anything.
+
+Startup restore is also skipped when you ask for something specific on the command line,
+such as `wezterm start -- pwsh` or `wezterm start --cwd C:\Projetos`.
+
+A stored directory that no longer exists (deleted project, unmounted drive) does not break
+the restore: that single tab opens at the default directory and everything else is
+unaffected.
+
 ### Customizing Appearance
 
 Edit `appearance.lua` to change:
@@ -114,20 +179,22 @@ Edit `initialization.lua` to customize shell selection and launch menu based on 
 
 ```
 .
-├── wezterm.lua                 # Main entry point
-├── appearance.lua              # Visual settings
-├── background_switcher.lua     # Background management
-├── command_palette.lua         # Command palette integration
-├── general_options.lua         # General behavior
-├── initialization.lua          # Platform-specific setup
-├── keymaps.lua                 # Keyboard shortcuts
-├── state_manager.lua           # State persistence system
-├── config_state.lua            # Generated state file (auto-created)
-├── fonts/                      # Local font directory
-│   └── *.ttf                   # Font files
-└── images/                     # Background images
-    ├── starry-night-sky.jpg
-    └── triple-ryoiki-tenkai.png
+|-- wezterm.lua                 # Main entry point
+|-- appearance.lua              # Visual settings
+|-- background_switcher.lua     # Background management
+|-- command_palette.lua         # Command palette integration
+|-- general_options.lua         # General behavior
+|-- initialization.lua          # Platform-specific setup
+|-- keymaps.lua                 # Keyboard shortcuts
+|-- tab_titles.lua              # Automatic and manual tab titles
+|-- session_manager.lua         # Window/tab session capture and restore
+|-- state_manager.lua           # State persistence system
+|-- config_state.lua            # Generated state file (auto-created, gitignored)
+|-- fonts/                      # Local font directory
+|   `-- *.ttf                   # Font files
+`-- images/                     # Background images
+    |-- starry-night-sky.jpg
+    `-- triple-ryoiki-tenkai.png
 ```
 
 ## Module Pattern
