@@ -16,6 +16,7 @@ function module.apply_to_config(config)
 	-- oO08 iIlL1 {} [] g9qCGQ ~-+=> <> !=
 	-- ]
 	config.font = wezterm.font_with_fallback({
+		"JetBrainsMono Nerd Font",
 		"Iosevka Nerd Font",
 		"UbuntuMono Nerd Font",
 		"Hack Nerd Font",
