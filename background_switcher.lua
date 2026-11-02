@@ -18,7 +18,7 @@ local function get_available_images()
 	for _, filepath in ipairs(files) do
 		-- Extract just the filename from the full path
 		local filename = nil
-		local SEP = package.config:sub(1,1)
+		local SEP = package.config:sub(1, 1)
 		filename = filepath:match("([^" .. SEP .. "]+)$")
 		local lower_file = filename:lower()
 		if lower_file:match("%.png$") or lower_file:match("%.jpg$") or lower_file:match("%.jpeg$") then
@@ -41,6 +41,11 @@ end
 local function apply_background(config, background)
 	if not background or background == "none" then
 		config.background = nil
+
+		local scheme = wezterm.color.get_builtin_schemes()["Tokyo Night Moon"]
+		config.colors = {
+			background = wezterm.color.parse(scheme.background):darken(0.30),
+		}
 		return
 	end
 
